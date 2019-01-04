@@ -49,16 +49,18 @@ public class DetailActivity extends AppCompatActivity {
                 //Show an alertDialog to offer choice between Home screen wallpaper,
                 //Lock screen wallpaper, or both
 
-                CustomDialogClass cdd=new CustomDialogClass(DetailActivity.this);
-                cdd.show();
 
-//                draweeView.setDrawingCacheEnabled(true);
-//                draweeView.buildDrawingCache();
-//                Bitmap bitmap = draweeView.getDrawingCache();
 
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    public Uri getCurrentArticleUri() {
+        Intent intent = getIntent();
+        final String value = intent.getStringExtra("key");
+        Uri uri = Uri.parse(value);
+        return uri;
     }
 
 }
