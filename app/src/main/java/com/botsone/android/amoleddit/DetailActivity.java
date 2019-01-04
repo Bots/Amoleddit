@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
@@ -42,7 +43,6 @@ public class DetailActivity extends AppCompatActivity {
 
         final SimpleDraweeView draweeView = (SimpleDraweeView) findViewById(R.id.detail_view);
 
-
         Intent intent = getIntent();
 
         final String value = intent.getStringExtra("key");
@@ -71,18 +71,44 @@ public class DetailActivity extends AppCompatActivity {
                                     // of the selected item
                                     switch (which) {
                                         case 0:
-                                            WallpaperManager image = WallpaperManager.getInstance(getApplicationContext());
+                                            WallpaperManager wm1 = WallpaperManager.getInstance(getApplicationContext());
                                             try {
-                                                image.setBitmap(bitmap);
+                                                wm1.setBitmap(bitmap);
                                             } catch (Exception ex) {
                                                 ex.printStackTrace();
                                             }
+                                            Toast.makeText(context, R.string.wallpaperSet, Toast.LENGTH_SHORT).show();
                                             break;
                                         case 1:
-                                            Toast.makeText(context, "clicked 2", Toast.LENGTH_SHORT).show();
+                                            WallpaperManager wm2 = WallpaperManager.getInstance(getApplicationContext());
+                                            try {
+                                                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                                                    // Do something for N and above versions
+                                                    wm2.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK);
+                                                    Toast.makeText(context, R.string.wallpaperSet, Toast.LENGTH_SHORT).show();
+                                                } else{
+                                                    // do something for phones running an SDK before N
+                                                    Toast.makeText(context, R.string.sorryMessage, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }catch (Exception ex) {
+                                                ex.printStackTrace();
+                                            }
                                             break;
                                         case 2:
-                                            Toast.makeText(context, "clicked 3", Toast.LENGTH_SHORT).show();
+                                            WallpaperManager wm3 = WallpaperManager.getInstance(getApplicationContext());
+                                            try {
+                                                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                                                    // Do something for N and above versions
+                                                    wm3.setBitmap(bitmap);
+                                                    wm3.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK);
+                                                    Toast.makeText(context, R.string.wallpaperSet, Toast.LENGTH_SHORT).show();
+                                                } else{
+                                                    // do something for phones running an SDK before N
+                                                    Toast.makeText(context, R.string.sorryMessage, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }catch (Exception ex) {
+                                                ex.printStackTrace();
+                                            }
                                             break;
 
                                     }

@@ -9,8 +9,8 @@
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/image_view"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="220dp"
+        android:layout_height="400dp"
         app:placeholderImage="@mipmap/ic_launcher" />
 
     <LinearLayout
@@ -22,20 +22,21 @@
             android:id="@+id/title_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Title of Post"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:paddingLeft="5dp"
-            android:background="@android:color/holo_purple" />
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="@android:color/holo_purple"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/username_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:paddingLeft="10dp"
-            android:background="@android:color/holo_purple"
-            android:text="UserName" />
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="@android:color/holo_purple" />
 
     </LinearLayout>
 
