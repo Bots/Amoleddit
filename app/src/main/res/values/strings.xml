@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">amoleddit</string>
+    <string name="app_name">Amoleddit</string>
 
     <!-- Text to display in the list when there are no earthquakes [CHAR LIMIT=NONE] -->
     <string name="no_articles">No articles found.</string>
