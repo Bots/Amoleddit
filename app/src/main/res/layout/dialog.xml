@@ -3,16 +3,16 @@
     android:layout_width="wrap_content"
     android:layout_height="160dp"
     android:background="#852db4"
-    android:orientation="vertical"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/txt_dia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="15dp"
         android:layout_margin="10dp"
+        android:layout_marginTop="15dp"
         android:paddingBottom="20dp"
         android:text="Where would you like to apply the image?"
         android:textColor="@android:color/white"
@@ -31,10 +31,10 @@
             android:id="@+id/btn_wallpaper"
             android:layout_width="100dp"
             android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
             android:background="@android:color/white"
             android:clickable="true"
             android:text="Wallpaper"
-            android:layout_marginLeft="10dp"
             android:textColor="#000000" />
 
         <Button
@@ -52,9 +52,9 @@
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
             android:background="@android:color/white"
             android:clickable="true"
-            android:layout_marginRight="10dp"
             android:text="Both"
             android:textColor="#000000" />
     </LinearLayout>

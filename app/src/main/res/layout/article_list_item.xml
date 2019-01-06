@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/black"
     android:orientation="vertical">
 
@@ -22,21 +22,21 @@
             android:id="@+id/title_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="20sp"
+            android:background="@android:color/holo_purple"
+            android:maxLines="1"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:background="@android:color/holo_purple"
-            android:maxLines="1"/>
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/username_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:background="@android:color/holo_purple"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:background="@android:color/holo_purple" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 

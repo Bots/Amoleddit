@@ -27,41 +27,40 @@
         android:id="@+id/multiple_actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         fab:fab_addButtonColorNormal="@android:color/darker_gray"
         fab:fab_addButtonColorPressed="@android:color/darker_gray"
         fab:fab_addButtonPlusIconColor="@android:color/background_light"
-        fab:fab_labelStyle="@style/menu_labels_style"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp">
+        fab:fab_labelStyle="@style/menu_labels_style">
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/action_a"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/white"
-            fab:fab_title="Set wallpaper"
-            fab:fab_colorPressed="@color/white_pressed"/>
+            fab:fab_colorPressed="@color/white_pressed"
+            fab:fab_title="Set wallpaper" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/action_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/white"
-            fab:fab_title="Save wallpaper"
-            fab:fab_colorPressed="@color/white_pressed"/>
+            fab:fab_colorPressed="@color/white_pressed"
+            fab:fab_title="Save wallpaper" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/action_c"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/white"
-            fab:fab_title="Share wallpaper"
-            fab:fab_colorPressed="@color/white_pressed"/>
+            fab:fab_colorPressed="@color/white_pressed"
+            fab:fab_title="Share wallpaper" />
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
