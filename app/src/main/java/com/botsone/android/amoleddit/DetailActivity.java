@@ -43,49 +43,34 @@ public class DetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final SimpleDraweeView draweeView = (SimpleDraweeView) findViewById(R.id.detail_view);
 
-        int actionRequested = 0;
+        final Context context = DetailActivity.this;
+        final String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME + ".png";
+        final Uri destinationUri = Uri.fromFile(new File(getCacheDir(), destinationFileName));
 
-        Intent intent = getIntent();
-
-        final String value = intent.getStringExtra("key");
-
+        final Intent gotIntent = getIntent();
+        final String value = gotIntent.getStringExtra("key");
         final Uri parsedUri = Uri.parse(value);
-        String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME + ".png";
-        final Uri destinationUri=Uri.fromFile(new File(getCacheDir(), destinationFileName));
 
+        final com.getbase.floatingactionbutton.FloatingActionButton actionA = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
+
+        final SimpleDraweeView draweeView = (SimpleDraweeView) findViewById(R.id.detail_view);
         draweeView.setDrawingCacheEnabled(true);
         draweeView.buildDrawingCache();
         draweeView.setImageURI(value);
 
         FloatingActionsMenu fam = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
 
-        final Context context = DetailActivity.this;
-
-        final WallpaperManager wm = WallpaperManager.getInstance(context);
-
-        final com.getbase.floatingactionbutton.FloatingActionButton actionA = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
-
         actionA.setOnClickListener(new View.OnClickListener() {
-                                       @Override
-                                       public void onClick(View view) {
+            @Override
+            public void onClick(View view) {
 
-                                           UCrop.of(parsedUri, destinationUri)
-                                                   .start(DetailActivity.this);
+                // Start the crop activity
+                UCrop.of(parsedUri, destinationUri)
+                        .start(DetailActivity.this);
 
-                                           
-
-//                                           try{
-//                                               Bitmap bitmap = draweeView.getDrawingCache();
-//                                               wm.setBitmap(bitmap);
-//                                           }
-//                                           catch(Exception ex)
-//                                           {
-//                                               ex.printStackTrace();
-//                                           }
-                                       }
-                                   });
+            }
+        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -94,16 +79,14 @@ public class DetailActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             Uri resultUri = UCrop.getOutput(data);
-            
             showDialog(resultUri);
-            
         } else if (resultCode == UCrop.RESULT_ERROR) {
             final Throwable cropError = UCrop.getError(data);
         }
     }
 
     private void showDialog(Uri resultUri) {
-        DialogActivity cdd=new DialogActivity(this, resultUri);
+        DialogActivity cdd = new DialogActivity(this, resultUri);
         cdd.show();
     }
 
@@ -142,7 +125,6 @@ public class DetailActivity extends AppCompatActivity {
                     WallpaperManager wm = WallpaperManager.getInstance(DetailActivity.this);
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(DetailActivity.this.getContentResolver(), resultUri);
-
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             wm.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM);
                             Toast.makeText(DetailActivity.this, "Wallpaper Set.", Toast.LENGTH_SHORT).show();
@@ -150,17 +132,14 @@ public class DetailActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(DetailActivity.this, "Not available on this version of Android.", Toast.LENGTH_SHORT).show();
                         }
-
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     c.finish();
                     break;
+
                 case R.id.btn_lockscreen_wallpaper:
                     WallpaperManager wm2 = WallpaperManager.getInstance(DetailActivity.this);
-
-                    
                     try {
                         Bitmap bitmap2 = MediaStore.Images.Media.getBitmap(DetailActivity.this.getContentResolver(), resultUri);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -173,11 +152,8 @@ public class DetailActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
-
-
                     break;
+
                 case R.id.btn_both_wallpapers:
                     WallpaperManager wm3 = WallpaperManager.getInstance(DetailActivity.this);
 
@@ -187,8 +163,6 @@ public class DetailActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    break;
-                default:
                     break;
             }
             dismiss();

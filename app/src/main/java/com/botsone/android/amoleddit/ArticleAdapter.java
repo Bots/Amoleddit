@@ -42,8 +42,6 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
                     R.layout.article_list_item, parent, false);
         }
 
-
-
         // Get article object at current position
         Article currentArticle = getItem(position);
 
