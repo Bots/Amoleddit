@@ -54,7 +54,7 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
 
         //Display the title and username under the image
         titleText.setText(currentArticle.getTitle());
-        userText.setText(currentArticle.getUserName());
+        userText.setText("Submitted by: " + currentArticle.getUserName());
 
         return listItemView;
     }

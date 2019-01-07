@@ -160,6 +160,8 @@ public class DetailActivity extends AppCompatActivity {
                     try {
                         Bitmap bitmap3 = MediaStore.Images.Media.getBitmap(DetailActivity.this.getContentResolver(), resultUri);
                         wm3.setBitmap(bitmap3);
+                        Toast.makeText(DetailActivity.this, "Wallpaper Set.", Toast.LENGTH_SHORT).show();
+                        c.finish();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

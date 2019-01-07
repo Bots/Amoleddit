@@ -10,7 +10,7 @@
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/image_view"
         android:layout_width="220dp"
-        android:layout_height="400dp"
+        android:layout_height="460dp"
         app:placeholderImage="@mipmap/ic_launcher" />
 
     <LinearLayout
@@ -22,8 +22,9 @@
             android:id="@+id/title_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_purple"
+            android:background="@android:color/darker_gray"
             android:maxLines="1"
+            android:paddingTop="4dp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textSize="20sp"
@@ -33,7 +34,9 @@
             android:id="@+id/username_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_purple"
+            android:background="@android:color/darker_gray"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textSize="14sp" />
