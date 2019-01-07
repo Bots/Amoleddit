@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 
@@ -53,6 +54,9 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.article_activity);
+
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // Find a reference to the {@link ListView} in the layout
         GridView articleListView = (GridView) findViewById(R.id.grid);
