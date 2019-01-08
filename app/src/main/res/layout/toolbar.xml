@@ -9,8 +9,11 @@
     android:background="?attr/colorPrimary">
     <Spinner
         android:id="@+id/toolbar_spinner"
+        android:entries="@array/toolbar_spinner_array"
+        android:prompt="@string/toolbar_spinner_prompt"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:visibility="visible"
         android:layout_gravity="right"/>
+
 </android.support.v7.widget.Toolbar>

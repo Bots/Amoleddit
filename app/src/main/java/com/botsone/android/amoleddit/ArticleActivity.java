@@ -6,13 +6,23 @@ import android.content.Intent;
 import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -33,6 +43,8 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
      */
     private TextView mEmptyStateTextView;
 
+    String sorter = "hot";
+
     /**
      * Constant value for the article loader ID. We can choose any integer.
      * This really only comes into play if you're using multiple loaders.
@@ -42,13 +54,15 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     /**
      * URL for article data from the guardian
      */
-    private static final String REDDIT_REQUEST_URL =
-            "https://www.reddit.com/r/amoledbackgrounds/hot/.json?limit=100&raw_json=1";
+    private String REDDIT_REQUEST_URL =
+            "https://www.reddit.com/r/amoledbackgrounds/" +sorter + "/.json?limit=100&raw_json=1";
 
     /**
      * Adapter for the list of articles
      */
     private ArticleAdapter mAdapter;
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,8 +71,10 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
         android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Find a reference to the {@link ListView} in the layout
+        Spinner toolbarSpinner = findViewById(R.id.toolbar_spinner);
+        toolbarSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+        final SwipeRefreshLayout mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
+        // Find a reference to the {@link GridView} in the layout
         GridView articleListView = (GridView) findViewById(R.id.grid);
 
         // Define empty textview for when no data is returned
@@ -72,8 +88,8 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         // so the list can be populated in the user interface
         articleListView.setAdapter(mAdapter);
 
-        // Set an item click listener on the ListView, which sends an intent to a web browser
-        // to open a website with the full article.
+        // Set an item click listener on the ListView, which sends an intent to the system
+        // to open the detail view.
         articleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -115,6 +131,7 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
             // Otherwise show error
             // First hide the loading indicator so that the error message will be visible
             View loadingIndicator = (View) findViewById(R.id.loading_indicator);
+
             loadingIndicator.setVisibility(View.GONE);
 
             mEmptyStateTextView.setText(R.string.no_internet_connection);
@@ -122,6 +139,66 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
         Fresco.initialize(this);
 
+        /*
+         * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
+         * performs a swipe-to-refresh gesture.
+         */
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        myUpdateOperation(mySwipeRefreshLayout);
+                    }
+                }
+        );
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(this, "Selected Item: " +item.getTitle(), Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()) {
+            case R.id.search_item:
+                // do your code
+                return true;
+            case R.id.upload_item:
+                // do your code
+                return true;
+            case R.id.copy_item:
+                // do your code
+                return true;
+            case R.id.print_item:
+                // do your code
+                return true;
+            case R.id.share_item:
+                // do your code
+                return true;
+            case R.id.bookmark_item:
+                // do your code
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
+
+
+    private void myUpdateOperation(SwipeRefreshLayout mySwipeRefreshLayout) {
+        mAdapter.clear();
+        getLoaderManager().initLoader(ARTICLE_LOADER_ID, null, this);
+        mySwipeRefreshLayout.setRefreshing(false);
+        //mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -155,4 +232,19 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         mAdapter.clear();
     }
 
+    private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            switch (position) {
+                case 0:
+                    sorter = "new";
+                    mAdapter.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    }
 }

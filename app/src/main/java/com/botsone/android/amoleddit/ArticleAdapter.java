@@ -1,6 +1,7 @@
 package com.botsone.android.amoleddit;
 
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Html;
@@ -30,6 +31,15 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
         super(context, 0, articles);
     }
 
+    @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        super.registerDataSetObserver(observer);
+    }
+
+    @Override
+    public void unregisterDataSetObserver(DataSetObserver observer) {
+        super.unregisterDataSetObserver(observer);
+    }
 
     @NonNull
     @Override
@@ -59,18 +69,5 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
         return listItemView;
     }
 
-    private String formatDate(String date) {
-        SimpleDateFormat sdfSource = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
-        String formattedDate = "";
-
-        try {
-            Date formatDate = sdfSource.parse(date);
-            formattedDate = formatDate.toString();
-            return formattedDate;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return formattedDate;
-    }
 
 }
