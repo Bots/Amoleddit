@@ -32,13 +32,23 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
     }
 
     @Override
-    public void registerDataSetObserver(DataSetObserver observer) {
-        super.registerDataSetObserver(observer);
+    public void add(Article object) {
+        super.add(object);
     }
 
     @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
-        super.unregisterDataSetObserver(observer);
+    public void insert(Article object, int index) {
+        super.insert(object, index);
+    }
+
+    @Override
+    public void remove(Article object) {
+        super.remove(object);
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
     }
 
     @NonNull

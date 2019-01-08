@@ -19,6 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipeline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,8 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
      */
     private TextView mEmptyStateTextView;
 
+
+    int check = 0;
     String sorter = "hot";
 
     /**
@@ -52,30 +57,31 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     private static final int ARTICLE_LOADER_ID = 0;
 
     /**
-     * URL for article data from the guardian
+     * URL for article data from reddit
      */
     private String REDDIT_REQUEST_URL =
-            "https://www.reddit.com/r/amoledbackgrounds/" +sorter + "/.json?limit=100&raw_json=1";
+            "https://www.reddit.com/r/amoledbackgrounds/" +sorter +"/.json?limit=100&raw_json=1";
 
     /**
      * Adapter for the list of articles
      */
     private ArticleAdapter mAdapter;
 
-
+    private SwipeRefreshLayout mySwipeRefreshLayout;
+     GridView articleListView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.article_activity);
-
+        mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
         android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Spinner toolbarSpinner = findViewById(R.id.toolbar_spinner);
+
         toolbarSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
-        final SwipeRefreshLayout mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
         // Find a reference to the {@link GridView} in the layout
-        GridView articleListView = (GridView) findViewById(R.id.grid);
+        articleListView = (GridView) findViewById(R.id.grid);
 
         // Define empty textview for when no data is returned
         mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
@@ -151,7 +157,7 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
-                        myUpdateOperation(mySwipeRefreshLayout);
+                        myUpdateOperation();
                     }
                 }
         );
@@ -168,7 +174,6 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         Toast.makeText(this, "Selected Item: " +item.getTitle(), Toast.LENGTH_SHORT).show();
         switch (item.getItemId()) {
             case R.id.search_item:
-                // do your code
                 return true;
             case R.id.upload_item:
                 // do your code
@@ -194,11 +199,11 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
 
 
-    private void myUpdateOperation(SwipeRefreshLayout mySwipeRefreshLayout) {
-        mAdapter.clear();
+    private void myUpdateOperation() {
+        getLoaderManager().destroyLoader(ARTICLE_LOADER_ID);
         getLoaderManager().initLoader(ARTICLE_LOADER_ID, null, this);
         mySwipeRefreshLayout.setRefreshing(false);
-        //mAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -233,12 +238,48 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            switch (position) {
-                case 0:
-                    sorter = "new";
-                    mAdapter.notifyDataSetChanged();
+            check++;
+            if (check > 1) {
+                switch (position) {
+                    case 0:
+                        Toast.makeText(ArticleActivity.this, "Sorted by Hot", Toast.LENGTH_SHORT).show();
+                        sorter = "hot";
+                        mAdapter.notifyDataSetChanged();
+                        REDDIT_REQUEST_URL = "https://www.reddit.com/r/amoledbackgrounds/" +sorter +"/.json?limit=100&raw_json=1";
+                        myUpdateOperation();
+                        break;
+                    case 1:
+                        Toast.makeText(ArticleActivity.this, "Sorted by New", Toast.LENGTH_SHORT).show();
+                        sorter = "new";
+                        mAdapter.notifyDataSetChanged();
+                        REDDIT_REQUEST_URL = "https://www.reddit.com/r/amoledbackgrounds/" +sorter +"/.json?limit=100&raw_json=1";
+                        myUpdateOperation();
+                        break;
+                    case 2:
+                        Toast.makeText(ArticleActivity.this, "Sorted by Controversial", Toast.LENGTH_SHORT).show();
+                        sorter = "controversial";
+                        mAdapter.notifyDataSetChanged();
+                        REDDIT_REQUEST_URL = "https://www.reddit.com/r/amoledbackgrounds/" +sorter +"/.json?limit=100&raw_json=1";
+                        myUpdateOperation();
+                        break;
+                    case 3:
+                        Toast.makeText(ArticleActivity.this, "Sorted by Top", Toast.LENGTH_SHORT).show();
+                        sorter = "top";
+                        mAdapter.notifyDataSetChanged();
+                        REDDIT_REQUEST_URL = "https://www.reddit.com/r/amoledbackgrounds/" +sorter +"/.json?limit=100&raw_json=1";
+                        myUpdateOperation();
+                        break;
+                    case 4:
+                        Toast.makeText(ArticleActivity.this, "Sorted by Rising", Toast.LENGTH_SHORT).show();
+                        sorter = "rising";
+                        mAdapter.notifyDataSetChanged();
+                        REDDIT_REQUEST_URL = "https://www.reddit.com/r/amoledbackgrounds/" +sorter +"/.json?limit=100&raw_json=1";
+                        myUpdateOperation();
+                        break;
+                }
             }
         }
 
