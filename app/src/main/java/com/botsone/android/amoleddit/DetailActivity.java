@@ -1,25 +1,26 @@
 package com.botsone.android.amoleddit;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.WallpaperManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -27,39 +28,43 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity{
 
     private static final String TAG = DetailActivity.class.getName();
     private static final String SAMPLE_CROPPED_IMAGE_NAME = "tempImage";
-    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    Uri uri3;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
-        final Context context = DetailActivity.this;
-        final String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME + ".png";
-        final Uri destinationUri = Uri.fromFile(new File(getCacheDir(), destinationFileName));
 
         final Intent gotIntent = getIntent();
         final String value = gotIntent.getStringExtra("key");
+        final String title = gotIntent.getStringExtra("title");
         final Uri parsedUri = Uri.parse(value);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(title);
+        setSupportActionBar(toolbar);
+
+        final String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME + ".png";
+        final Uri destinationUri = Uri.fromFile(new File(getCacheDir(), destinationFileName));
+
+        final FloatingActionsMenu menuMultipleActions = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
         final com.getbase.floatingactionbutton.FloatingActionButton actionA = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
+        final com.getbase.floatingactionbutton.FloatingActionButton actionB = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_b);
+        final com.getbase.floatingactionbutton.FloatingActionButton actionC = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_c);
+
 
         final SimpleDraweeView draweeView = (SimpleDraweeView) findViewById(R.id.detail_view);
         draweeView.setDrawingCacheEnabled(true);
         draweeView.buildDrawingCache();
         draweeView.setImageURI(value);
-
-        FloatingActionsMenu fam = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
 
         actionA.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,9 +76,76 @@ public class DetailActivity extends AppCompatActivity {
 
             }
         });
+
+        actionB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted
+                    // Request for permission
+                    ActivityCompat.requestPermissions(DetailActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+                }else {
+                    Bitmap bitmap = draweeView.getDrawingCache();
+                    saveImage(bitmap);
+                    menuMultipleActions.collapse();
+                }
+            }
+
+        });
+
+        actionC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    private void saveImage(Bitmap finalBitmap) {
+
+        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+        File myDir = new File(root);
+        if (!myDir.exists()) {
+
+            boolean result = myDir.mkdirs();
+            Log.d("MyActivity", "mkdirs: " + result);
+
+
+        }
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ())
+            file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            Toast.makeText(this, "File saved to /sdcard/Downloads", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Intent mediaScanIntent = new Intent(
+                        Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                Uri contentUri = Uri.fromFile(file); //out is your output file
+                mediaScanIntent.setData(contentUri);
+                this.sendBroadcast(mediaScanIntent);
+            } else {
+
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

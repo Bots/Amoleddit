@@ -106,11 +106,13 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
                 //Uri articleUri = Uri.parse(currentArticle.getUrl());
 
                 String parsedUri = currentArticle.getUrl();
+                String title = currentArticle.getTitle();
 
                 // Create a new intent to send user to detail activity
                 Intent detailIntent = new Intent(ArticleActivity.this, DetailActivity.class);
 
                 detailIntent.putExtra("key", parsedUri);
+                detailIntent.putExtra("title", title);
 
                 // Send the intent to launch a new activity
                 startActivity(detailIntent);
@@ -171,24 +173,9 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(this, "Selected Item: " +item.getTitle(), Toast.LENGTH_SHORT).show();
         switch (item.getItemId()) {
-            case R.id.search_item:
-                return true;
-            case R.id.upload_item:
-                // do your code
-                return true;
-            case R.id.copy_item:
-                // do your code
-                return true;
-            case R.id.print_item:
-                // do your code
-                return true;
-            case R.id.share_item:
-                // do your code
-                return true;
-            case R.id.bookmark_item:
-                // do your code
+            case R.id.refresh_item:
+                myUpdateOperation();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
