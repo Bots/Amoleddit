@@ -3,13 +3,13 @@ package com.botsone.android.amoleddit;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,10 +23,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.facebook.common.util.UriUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.yalantis.ucrop.UCrop;
@@ -197,6 +195,8 @@ public class DetailActivity extends AppCompatActivity{
             out.flush();
             out.close();
             Toast.makeText(this, "File saved to /sdcard/Downloads", Toast.LENGTH_SHORT).show();
+            DownloadManager downloadManager = (DownloadManager)this.getSystemService(this.DOWNLOAD_SERVICE);
+            downloadManager.addCompletedDownload(file.getName(), file.getName(), true, "image/*", file.getAbsolutePath(),file.length(),true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 Intent mediaScanIntent = new Intent(
                         Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
