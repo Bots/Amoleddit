@@ -4,9 +4,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.WallpaperManager;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,11 +26,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.common.util.UriUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
@@ -66,6 +71,8 @@ public class DetailActivity extends AppCompatActivity{
         draweeView.buildDrawingCache();
         draweeView.setImageURI(value);
 
+
+
         actionA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,11 +107,70 @@ public class DetailActivity extends AppCompatActivity{
         actionC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bitmap bitmap = Bitmap.createBitmap(draweeView.getDrawingCache());
 
+                File f = saveBitmapToFile(bitmap);
+
+                try {
+                    final Uri newUri = convertFileToContentUri(DetailActivity.this, f);
+
+                    Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+
+                    if (f.exists()) {
+                        intentShareFile.setType("image/*");
+                        intentShareFile.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intentShareFile.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        intentShareFile.putExtra(Intent.EXTRA_STREAM, newUri);
+
+                        intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
+                                "Sharing File From Amoleddit...");
+                        intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File From Amoleddit...");
+
+                        startActivity(Intent.createChooser(intentShareFile, "Share File"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                menuMultipleActions.collapse();
             }
         });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    protected static Uri convertFileToContentUri(Context context, File file) throws Exception {
+
+        //Uri localImageUri = Uri.fromFile(localImageFile); // Not suitable as it's not a content Uri
+
+        ContentResolver cr = context.getContentResolver();
+        String imagePath = file.getAbsolutePath();
+        String imageName = null;
+        String imageDescription = null;
+        String uriString = MediaStore.Images.Media.insertImage(cr, imagePath, imageName, imageDescription);
+        return Uri.parse(uriString);
+    }
+
+    private File saveBitmapToFile(Bitmap bitmap1) {
+
+        //save bitmap to file f
+        File cacheDir = getBaseContext().getCacheDir();
+        final File f = new File(cacheDir, "pic.jpg");
+
+        try {
+            FileOutputStream out = new FileOutputStream(
+                    f);
+            bitmap1.compress(
+                    Bitmap.CompressFormat.JPEG,
+                    100, out);
+            out.flush();
+            out.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return f;
     }
 
     private void saveImage(Bitmap finalBitmap) {
@@ -138,7 +204,6 @@ public class DetailActivity extends AppCompatActivity{
                 mediaScanIntent.setData(contentUri);
                 this.sendBroadcast(mediaScanIntent);
             } else {
-
                 sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
                         Uri.parse("file://" + Environment.getExternalStorageDirectory())));
             }
