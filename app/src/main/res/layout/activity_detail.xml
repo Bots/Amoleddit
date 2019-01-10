@@ -68,6 +68,16 @@
             fab:fab_title="Share wallpaper"
             fab:fab_size="mini"/>
 
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/action_d"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:foreground="@drawable/comments_round"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed"
+            fab:fab_title="Go to Reddit comments"
+            fab:fab_size="mini"/>
+
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </RelativeLayout>

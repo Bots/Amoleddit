@@ -69,7 +69,7 @@ public final class QueryUtils {
                 String title = currentData.getString("title");
 
                 // Get url
-                String url = currentData.getString("url");
+                String url = currentData.getString("permalink");
 
                 // Get userName
                 String userName = currentData.getString("author");

@@ -80,6 +80,7 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         Spinner toolbarSpinner = findViewById(R.id.toolbar_spinner);
 
         toolbarSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+
         // Find a reference to the {@link GridView} in the layout
         articleListView = (GridView) findViewById(R.id.grid);
 
@@ -105,14 +106,16 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
                 //Uri articleUri = Uri.parse(currentArticle.getUrl());
 
-                String parsedUri = currentArticle.getUrl();
+                String parsedUri = currentArticle.getImageUrl();
                 String title = currentArticle.getTitle();
+                String commentsLink = currentArticle.getUrl();
 
                 // Create a new intent to send user to detail activity
                 Intent detailIntent = new Intent(ArticleActivity.this, DetailActivity.class);
 
                 detailIntent.putExtra("key", parsedUri);
                 detailIntent.putExtra("title", title);
+                detailIntent.putExtra("commentsLink", commentsLink);
 
                 // Send the intent to launch a new activity
                 startActivity(detailIntent);
@@ -177,6 +180,11 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
             case R.id.refresh_item:
                 myUpdateOperation();
                 return true;
+            case R.id.goto_reddit_item:
+                String url = "http://www.reddit.com/r/amoledbackgrounds";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
             default:
                 return super.onOptionsItemSelected(item);
         }

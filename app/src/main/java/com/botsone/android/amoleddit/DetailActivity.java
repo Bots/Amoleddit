@@ -49,6 +49,7 @@ public class DetailActivity extends AppCompatActivity{
         final Intent gotIntent = getIntent();
         final String value = gotIntent.getStringExtra("key");
         final String title = gotIntent.getStringExtra("title");
+        final String commentsUri = "https://www.reddit.com" + gotIntent.getStringExtra("commentsLink");
         final Uri parsedUri = Uri.parse(value);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -62,14 +63,12 @@ public class DetailActivity extends AppCompatActivity{
         final com.getbase.floatingactionbutton.FloatingActionButton actionA = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
         final com.getbase.floatingactionbutton.FloatingActionButton actionB = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_b);
         final com.getbase.floatingactionbutton.FloatingActionButton actionC = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_c);
-
+        final com.getbase.floatingactionbutton.FloatingActionButton actionD = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_d);
 
         final SimpleDraweeView draweeView = (SimpleDraweeView) findViewById(R.id.detail_view);
         draweeView.setDrawingCacheEnabled(true);
         draweeView.buildDrawingCache();
         draweeView.setImageURI(value);
-
-
 
         actionA.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +129,15 @@ public class DetailActivity extends AppCompatActivity{
                     e.printStackTrace();
                 }
                 menuMultipleActions.collapse();
+            }
+        });
+
+        actionD.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(commentsUri));
+                startActivity(i);
             }
         });
 

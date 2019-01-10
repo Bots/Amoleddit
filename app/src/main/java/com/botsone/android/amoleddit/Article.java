@@ -37,4 +37,5 @@ public class Article {
     public String getUserName() {
         return mUserName;
     }
+
 }
