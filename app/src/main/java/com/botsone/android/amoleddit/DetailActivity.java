@@ -144,6 +144,8 @@ public class DetailActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+
+
     protected static Uri convertFileToContentUri(Context context, File file) throws Exception {
 
         //Uri localImageUri = Uri.fromFile(localImageFile); // Not suitable as it's not a content Uri
@@ -275,7 +277,7 @@ public class DetailActivity extends AppCompatActivity{
                             Toast.makeText(DetailActivity.this, "Wallpaper Set.", Toast.LENGTH_SHORT).show();
                             c.finish();
                         } else {
-                            Toast.makeText(DetailActivity.this, "Not available on this version of Android.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DetailActivity.this, "Not available on this version of Android. Try setting both wallpapers at the same time.", Toast.LENGTH_SHORT).show();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -292,7 +294,7 @@ public class DetailActivity extends AppCompatActivity{
                             Toast.makeText(DetailActivity.this, "Wallpaper Set.", Toast.LENGTH_SHORT).show();
                             c.finish();
                         } else {
-                            Toast.makeText(DetailActivity.this, "Not available on this version of Android.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DetailActivity.this, "Not available on this version of Android. Try setting both wallpapers at the same time.", Toast.LENGTH_SHORT).show();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
