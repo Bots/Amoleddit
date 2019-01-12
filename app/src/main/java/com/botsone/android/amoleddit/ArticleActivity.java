@@ -29,6 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.anjlab.android.iab.v3.BillingProcessor;
+import com.anjlab.android.iab.v3.TransactionDetails;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipeline;
 
@@ -39,48 +41,31 @@ import java.util.List;
  * Created by bots on 2/18/18.
  */
 
-public class ArticleActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Article>> {
+public class ArticleActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Article>>, BillingProcessor.IBillingHandler {
 
     public static final String LOG_TAG = ArticleActivity.class.getName();
-
-    /**
-     * TextView that is displayed when the list is empty
-     */
-    private TextView mEmptyStateTextView;
-
-    int check = 0;
-    String sorter = "hot";
-
-    /**
-     * Constant value for the article loader ID. We can choose any integer.
-     * This really only comes into play if you're using multiple loaders.
-     */
     private static final int ARTICLE_LOADER_ID = 0;
-
-    /**
-     * URL for article data from reddit
-     */
+    private TextView mEmptyStateTextView;
+    private String sorter = "hot";
     private String REDDIT_REQUEST_URL =
             "https://www.reddit.com/r/amoledbackgrounds/" + sorter + "/.json?limit=100&raw_json=1";
-
-    /**
-     * Adapter for the list of articles
-     */
     private ArticleAdapter mAdapter;
-
     private SwipeRefreshLayout mySwipeRefreshLayout;
-    GridView articleListView;
+    private int check = 0;
+    private GridView articleListView;
+    private String donation1 = "one_dollar_donation";
+    BillingProcessor bp;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.article_activity);
+
         mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
         android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Spinner toolbarSpinner = findViewById(R.id.toolbar_spinner);
-
-        Log.d(LOG_TAG, "OnCreate called");
 
         toolbarSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
 
@@ -130,6 +115,9 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
         loadData();
 
+        bp = new BillingProcessor(this, getString(R.string.google_key), this);
+        bp.initialize();
+
         Fresco.initialize(this);
 
         /*
@@ -168,13 +156,17 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
+            case R.id.donate:
+                // Donation stuff here
+                bp.consumePurchase(donation1);
+                bp.purchase(this, donation1);
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     private void myUpdateOperation() {
-        Log.d(LOG_TAG, "myUpdateOperation Called");
         getLoaderManager().destroyLoader(ARTICLE_LOADER_ID);
         getLoaderManager().initLoader(ARTICLE_LOADER_ID, null, this);
         mySwipeRefreshLayout.setRefreshing(false);
@@ -289,5 +281,53 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
             mEmptyStateTextView.setText(R.string.no_internet_connection);
         }
 
+    }
+
+    // IBillingHandler implementation
+
+    @Override
+    public void onBillingInitialized() {
+        /*
+         * Called when BillingProcessor was initialized and it's ready to purchase
+         */
+    }
+
+    @Override
+    public void onProductPurchased(String productId, TransactionDetails details) {
+        /*
+         * Called when requested PRODUCT ID was successfully purchased
+         */
+    }
+
+    @Override
+    public void onBillingError(int errorCode, Throwable error) {
+        /*
+         * Called when some error occurred. See Constants class for more details
+         *
+         * Note - this includes handling the case where the user canceled the buy dialog:
+         * errorCode = Constants.BILLING_RESPONSE_RESULT_USER_CANCELED
+         */
+    }
+
+    @Override
+    public void onPurchaseHistoryRestored() {
+        /*
+         * Called when purchase history was restored and the list of all owned PRODUCT ID's
+         * was loaded from Google Play
+         */
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!bp.handleActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+    @Override
+    public void onDestroy() {
+        if (bp != null) {
+            bp.release();
+        }
+        super.onDestroy();
     }
 }

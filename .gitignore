@@ -1,3 +1,4 @@
+**/*/res/values/secrets.xml
 *.iml
 .gradle
 /local.properties

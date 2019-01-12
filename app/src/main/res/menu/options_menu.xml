@@ -6,4 +6,6 @@
         android:title="Refresh" />
     <item android:id="@+id/goto_reddit_item"
         android:title="Go to Subreddit" />
+    <item android:id="@+id/donate"
+        android:title="Donate $1.00" />
 </menu>
