@@ -67,6 +67,7 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
 
         TextView titleText = (TextView) listItemView.findViewById(R.id.title_tv);
         TextView userText = (TextView) listItemView.findViewById(R.id.username_tv);
+        TextView resolutionText = (TextView) listItemView.findViewById(R.id.resolution_tv);
 
         // Display image for current article
         SimpleDraweeView draweeView = (SimpleDraweeView) listItemView.findViewById(R.id.image_view);
@@ -75,6 +76,7 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
         //Display the title and username under the image
         titleText.setText(currentArticle.getTitle());
         userText.setText("Submitted by: " + currentArticle.getUserName());
+        resolutionText.setText(currentArticle.getmResolution());
 
         return listItemView;
     }

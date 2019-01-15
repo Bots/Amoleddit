@@ -3,6 +3,7 @@ package com.botsone.android.amoleddit;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,8 +69,24 @@ public final class QueryUtils {
                 // Get title
                 String title = currentData.getString("title");
 
+                String resolution;
+                // Get the resolution if available, otherwise set it to not available
+                if (title.contains("[")) {
+                    resolution = StringUtils.substringBetween(title, "[", "]");
+                    // remove res from title
+                    title = title.replaceAll("\\[.*\\]","");
+                } else if (title.contains("(")) {
+                    resolution = StringUtils.substringBetween(title, "(", ")");
+                    // remove res from title
+                    title = title.replaceAll("\\(.*\\)","");
+                }
+                else {
+                    resolution = "Not available";
+                }
+
+
                 // Get url
-                String url = currentData.getString("permalink");
+                String url = currentData.getString("url");
 
                 // Get userName
                 String userName = currentData.getString("author");
@@ -92,37 +109,37 @@ public final class QueryUtils {
                     if (resolutionsArray.length() >= 6) {
                         JSONObject number = resolutionsArray.getJSONObject(5);
                         String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName);
+                        Article article = new Article(imageUrl, title, url, userName, resolution);
                         articles.add(article);
 
                     } if (resolutionsArray.length() == 5) {
                         JSONObject number = resolutionsArray.getJSONObject(4);
                         String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName);
+                        Article article = new Article(imageUrl, title, url, userName, resolution);
                         articles.add(article);
 
                     } if (resolutionsArray.length() == 4) {
                         JSONObject number = resolutionsArray.getJSONObject(3);
                         String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName);
+                        Article article = new Article(imageUrl, title, url, userName, resolution);
                         articles.add(article);
 
                     } if (resolutionsArray.length() == 3) {
                         JSONObject number = resolutionsArray.getJSONObject(2);
                         String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName);
+                        Article article = new Article(imageUrl, title, url, userName, resolution);
                         articles.add(article);
 
                     } if (resolutionsArray.length() == 2) {
                         JSONObject number = resolutionsArray.getJSONObject(1);
                         String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName);
+                        Article article = new Article(imageUrl, title, url, userName, resolution);
                         articles.add(article);
 
                     } if (resolutionsArray.length() == 1) {
                         JSONObject number = resolutionsArray.getJSONObject(0);
                         String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName);
+                        Article article = new Article(imageUrl, title, url, userName, resolution);
                         articles.add(article);
 
                     }

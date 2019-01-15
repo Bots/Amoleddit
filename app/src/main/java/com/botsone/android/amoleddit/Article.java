@@ -14,12 +14,15 @@ public class Article {
 
     private String mUserName;
 
-    public Article(String imageUrl, String title, String url, String userName) {
+    private String mResolution;
+
+    public Article(String imageUrl, String title, String url, String userName, String resolution) {
 
         mImageUrl = imageUrl;
         mTitle = title;
         mUrl = url;
         mUserName = userName;
+        mResolution = resolution;
     }
 
     public String getImageUrl() {
@@ -36,6 +39,10 @@ public class Article {
 
     public String getUserName() {
         return mUserName;
+    }
+
+    public String getmResolution() {
+        return mResolution;
     }
 
 }

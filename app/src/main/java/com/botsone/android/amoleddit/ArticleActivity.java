@@ -150,20 +150,34 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         switch (item.getItemId()) {
             case R.id.refresh_item:
                 myUpdateOperation();
-                return true;
+                break;
             case R.id.goto_reddit_item:
                 String url = "http://www.reddit.com/r/amoledbackgrounds";
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
+                break;
+            case R.id.share_app:
+                try {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Amoleddit");
+                    String shareMessage= "\nCheck out this wallpaper app called Amoleddit!\n\n";
+                    shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID +"\n\n";
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+                    startActivity(Intent.createChooser(shareIntent, "choose one"));
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                break;
             case R.id.donate:
-                // Donation stuff here
                 bp.consumePurchase(donation1);
                 bp.purchase(this, donation1);
-
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     private void myUpdateOperation() {
@@ -252,7 +266,6 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
         }
     }
-
 
     private void loadData() {
 
