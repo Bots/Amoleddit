@@ -41,7 +41,7 @@ public class Article {
         return mUserName;
     }
 
-    public String getmResolution() {
+    public String getResolution() {
         return mResolution;
     }
 
