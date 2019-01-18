@@ -4,7 +4,7 @@ android {
     signingConfigs {
         config {
             keyAlias 'key0'
-            storeFile file('/Users/lol/Downloads/amoleddit.jks')
+            storeFile file(ANDROID_KEY_PATH)
             keyPassword ANDROID_KEY_PASSWORD
             storePassword ANDROID_STORE_PASSWORD
         }
