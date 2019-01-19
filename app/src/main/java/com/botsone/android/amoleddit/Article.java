@@ -16,13 +16,16 @@ public class Article {
 
     private String mResolution;
 
-    public Article(String imageUrl, String title, String url, String userName, String resolution) {
+    private String mPermalink;
+
+    public Article(String imageUrl, String title, String url, String userName, String resolution, String permalink) {
 
         mImageUrl = imageUrl;
         mTitle = title;
         mUrl = url;
         mUserName = userName;
         mResolution = resolution;
+        mPermalink = permalink;
     }
 
     public String getImageUrl() {
@@ -43,6 +46,10 @@ public class Article {
 
     public String getResolution() {
         return mResolution;
+    }
+
+    public String getPermalink() {
+        return mPermalink;
     }
 
 }

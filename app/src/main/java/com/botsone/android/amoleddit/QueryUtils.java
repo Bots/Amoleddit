@@ -87,6 +87,7 @@ public final class QueryUtils {
 
                 // Get url
                 String url = currentData.getString("url");
+                String permalink = currentData.getString("permalink");
 
                 // Get userName
                 String userName = currentData.getString("author");
@@ -105,44 +106,12 @@ public final class QueryUtils {
                     JSONArray resolutionsArray = zeroObject.getJSONArray("resolutions");
 
                     // Get object X
-
-                    if (resolutionsArray.length() >= 6) {
-                        JSONObject number = resolutionsArray.getJSONObject(5);
-                        String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName, resolution);
-                        articles.add(article);
-
-                    } if (resolutionsArray.length() == 5) {
-                        JSONObject number = resolutionsArray.getJSONObject(4);
-                        String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName, resolution);
-                        articles.add(article);
-
-                    } if (resolutionsArray.length() == 4) {
-                        JSONObject number = resolutionsArray.getJSONObject(3);
-                        String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName, resolution);
-                        articles.add(article);
-
-                    } if (resolutionsArray.length() == 3) {
-                        JSONObject number = resolutionsArray.getJSONObject(2);
-                        String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName, resolution);
-                        articles.add(article);
-
-                    } if (resolutionsArray.length() == 2) {
-                        JSONObject number = resolutionsArray.getJSONObject(1);
-                        String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName, resolution);
-                        articles.add(article);
-
-                    } if (resolutionsArray.length() == 1) {
-                        JSONObject number = resolutionsArray.getJSONObject(0);
-                        String imageUrl = number.getString("url");
-                        Article article = new Article(imageUrl, title, url, userName, resolution);
-                        articles.add(article);
-
-                    }
+                    JSONObject number;
+                    String previewUrl ="";
+                    number = resolutionsArray.getJSONObject(resolutionsArray.length() - 1);
+                    previewUrl = number.getString("url");
+                    Article article = new Article(previewUrl, title, url, userName, resolution, permalink);
+                    articles.add(article);
                 }
             }
 

@@ -50,7 +50,7 @@ public class DetailActivity extends AppCompatActivity{
         final Intent gotIntent = getIntent();
         final String value = gotIntent.getStringExtra("key");
         final String title = gotIntent.getStringExtra("title");
-        final String commentsUri = "https://www.reddit.com" + gotIntent.getStringExtra("commentsLink");
+        final String commentsUri = "https://www.reddit.com" + gotIntent.getStringExtra("permalink");
         final Uri parsedUri = Uri.parse(value);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
