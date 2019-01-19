@@ -8,31 +8,22 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.imagepipeline.core.ImagePipeline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,14 +88,14 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
                 String parsedUri = currentArticle.getImageUrl();
                 String title = currentArticle.getTitle();
-                String commentsLink = currentArticle.getUrl();
+                String permalink = currentArticle.getPermalink();
 
                 // Create a new intent to send user to detail activity
                 Intent detailIntent = new Intent(ArticleActivity.this, DetailActivity.class);
 
                 detailIntent.putExtra("key", parsedUri);
                 detailIntent.putExtra("title", title);
-                detailIntent.putExtra("commentsLink", commentsLink);
+                detailIntent.putExtra("permalink", permalink);
 
                 // Send the intent to launch a new activity
                 startActivity(detailIntent);
