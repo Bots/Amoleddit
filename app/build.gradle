@@ -49,4 +49,5 @@ dependencies {
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'com.anjlab.android.iab.v3:library:1.0.44'
     implementation 'org.apache.commons:commons-lang3:3.0'
+    implementation 'com.nabinbhandari.android:permissions:3.8'
 }

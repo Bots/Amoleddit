@@ -1,6 +1,7 @@
 package com.botsone.android.amoleddit;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -8,6 +9,7 @@ import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,6 +22,7 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,6 +34,8 @@ import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.nabinbhandari.android.permissions.PermissionHandler;
+import com.nabinbhandari.android.permissions.Permissions;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
@@ -112,40 +117,36 @@ public class DetailActivity extends AppCompatActivity{
         actionC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    // Permission is not granted
-                    // Request for permission
-                    ActivityCompat.requestPermissions(DetailActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                final Context context = DetailActivity.this;
 
-                }else {
+                Permissions.check(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, "Storage access is needed to temporarily store the image so that it can be shared", new PermissionHandler() {
+                    @Override
+                    public void onGranted() {
+                        File cacheDir = getBaseContext().getCacheDir();
+                        File f = new File(cacheDir, "pic");
+                        FileInputStream fis = null;
+                        try {
+                            fis = new FileInputStream(f);
+                        } catch (FileNotFoundException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        Bitmap bitmap = BitmapFactory.decodeStream(fis);
 
+                        Uri uri = getImageUri(DetailActivity.this, bitmap);
+                        // Share bitmap
 
-                    File cacheDir = getBaseContext().getCacheDir();
-                    File f = new File(cacheDir, "pic");
-                    FileInputStream fis = null;
-                    try {
-                        fis = new FileInputStream(f);
-                    } catch (FileNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_TEXT, "Sharing wallpaper from Amoleddit");
+                        intent.putExtra(Intent.EXTRA_STREAM, uri);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.setType("image/*");
+                        startActivity(intent);
+
+                        menuMultipleActions.collapse();
                     }
-                    Bitmap bitmap = BitmapFactory.decodeStream(fis);
+                });
 
-                    Uri uri = getImageUri(DetailActivity.this, bitmap);
-                    // Share bitmap
-
-                    Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-                    intent.putExtra(Intent.EXTRA_TEXT, "Sharing wallpaper from Amoleddit");
-                    intent.putExtra(Intent.EXTRA_STREAM, uri);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    intent.setType("image/*");
-                    startActivity(intent);
-
-                    menuMultipleActions.collapse();
-                }
             }
         });
 
