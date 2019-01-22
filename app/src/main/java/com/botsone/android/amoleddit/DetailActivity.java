@@ -6,14 +6,17 @@ import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.WallpaperManager;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,11 +33,15 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.yalantis.ucrop.UCrop;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
+
+import static com.yalantis.ucrop.util.BitmapLoadUtils.calculateInSampleSize;
 
 public class DetailActivity extends AppCompatActivity{
 
@@ -105,31 +112,40 @@ public class DetailActivity extends AppCompatActivity{
         actionC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bitmap bitmap = Bitmap.createBitmap(draweeView.getDrawingCache());
+                if (ContextCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted
+                    // Request for permission
+                    ActivityCompat.requestPermissions(DetailActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
 
-                File f = saveBitmapToFile(bitmap);
+                }else {
 
-                try {
-                    final Uri newUri = convertFileToContentUri(DetailActivity.this, f);
 
-                    Intent intentShareFile = new Intent(Intent.ACTION_SEND);
-
-                    if (f.exists()) {
-                        intentShareFile.setType("image/*");
-                        intentShareFile.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        intentShareFile.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        intentShareFile.putExtra(Intent.EXTRA_STREAM, newUri);
-
-                        intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
-                                "Sharing File From Amoleddit...");
-                        intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File From Amoleddit...");
-
-                        startActivity(Intent.createChooser(intentShareFile, "Share File"));
+                    File cacheDir = getBaseContext().getCacheDir();
+                    File f = new File(cacheDir, "pic");
+                    FileInputStream fis = null;
+                    try {
+                        fis = new FileInputStream(f);
+                    } catch (FileNotFoundException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    Bitmap bitmap = BitmapFactory.decodeStream(fis);
+
+                    Uri uri = getImageUri(DetailActivity.this, bitmap);
+                    // Share bitmap
+
+                    Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                    intent.putExtra(Intent.EXTRA_TEXT, "Sharing wallpaper from Amoleddit");
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.setType("image/*");
+                    startActivity(intent);
+
+                    menuMultipleActions.collapse();
                 }
-                menuMultipleActions.collapse();
             }
         });
 
@@ -146,18 +162,14 @@ public class DetailActivity extends AppCompatActivity{
     }
 
 
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
 
-    protected static Uri convertFileToContentUri(Context context, File file) throws Exception {
-
-        //Uri localImageUri = Uri.fromFile(localImageFile); // Not suitable as it's not a content Uri
-
-        ContentResolver cr = context.getContentResolver();
-        String imagePath = file.getAbsolutePath();
-        String imageName = null;
-        String imageDescription = null;
-        String uriString = MediaStore.Images.Media.insertImage(cr, imagePath, imageName, imageDescription);
-        return Uri.parse(uriString);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
+
 
     private File saveBitmapToFile(Bitmap bitmap1) {
 

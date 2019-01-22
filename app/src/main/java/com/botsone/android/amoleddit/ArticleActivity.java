@@ -4,6 +4,8 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -23,8 +25,22 @@ import android.widget.Toast;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.facebook.common.executors.CallerThreadExecutor;
+import com.facebook.common.references.CloseableReference;
+import com.facebook.datasource.DataSource;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipeline;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
+import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber;
+import com.facebook.imagepipeline.image.CloseableImage;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +63,6 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     private String donation1 = "one_dollar_donation";
     BillingProcessor bp;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +72,8 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Spinner toolbarSpinner = findViewById(R.id.toolbar_spinner);
+        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(this).build();
+        Fresco.initialize(this, config);
 
         toolbarSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
 
@@ -86,16 +103,62 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
                 //Uri articleUri = Uri.parse(currentArticle.getUrl());
 
+
+
                 String parsedUri = currentArticle.getImageUrl();
                 String title = currentArticle.getTitle();
                 String permalink = currentArticle.getPermalink();
 
                 // Create a new intent to send user to detail activity
-                Intent detailIntent = new Intent(ArticleActivity.this, DetailActivity.class);
+                final Intent detailIntent = new Intent(ArticleActivity.this, DetailActivity.class);
+
+                ImagePipeline imagePipeline = Fresco.getImagePipeline();
+                Uri uri = Uri.parse(currentArticle.getImageUrl());
+
+                ImageRequest request = ImageRequestBuilder
+                        .newBuilderWithSource(uri).build();
+
+                imagePipeline.prefetchToBitmapCache(request, this);
+
+                DataSource<CloseableReference<CloseableImage>>
+                        dataSource = imagePipeline.fetchDecodedImage(request, this);
+
+                dataSource.subscribe(
+                        new BaseBitmapDataSubscriber() {
+                            @Override
+                            public void onNewResultImpl(@Nullable Bitmap bitmap) {
+                                // Pass bitmap to system, which makes a copy of the bitmap.
+                                File cacheDir = getBaseContext().getCacheDir();
+                                File f = new File(cacheDir, "pic");
+
+                                try {
+                                    FileOutputStream out = new FileOutputStream(
+                                            f);
+                                    bitmap.compress(
+                                            Bitmap.CompressFormat.JPEG,
+                                            100, out);
+                                    out.flush();
+                                    out.close();
+
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                // No need to do any cleanup.
+                            }
+
+                            @Override
+                            public void onFailureImpl(DataSource dataSource) {
+                                // No cleanup required here.
+                            }
+                        }, CallerThreadExecutor.getInstance());
+
 
                 detailIntent.putExtra("key", parsedUri);
                 detailIntent.putExtra("title", title);
                 detailIntent.putExtra("permalink", permalink);
+
 
                 // Send the intent to launch a new activity
                 startActivity(detailIntent);
@@ -108,8 +171,6 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
         bp = new BillingProcessor(this, getString(R.string.google_key), this);
         bp.initialize();
-
-        Fresco.initialize(this);
 
         /*
          * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
