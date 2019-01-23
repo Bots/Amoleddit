@@ -44,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static com.yalantis.ucrop.util.BitmapLoadUtils.calculateInSampleSize;
@@ -97,19 +98,22 @@ public class DetailActivity extends AppCompatActivity{
         actionB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    // Permission is not granted
-                    // Request for permission
-                    ActivityCompat.requestPermissions(DetailActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                final Context context = DetailActivity.this;
 
-                }else {
-                    Bitmap bitmap = draweeView.getDrawingCache();
-                    saveImage(bitmap);
-                    menuMultipleActions.collapse();
-                }
+                Permissions.check(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, "Storage access is needed to save image", new PermissionHandler() {
+                    @Override
+                    public void onGranted() {
+                        Bitmap bitmap = draweeView.getDrawingCache();
+                        saveImage(bitmap);
+                        menuMultipleActions.collapse();
+                    }
+
+                    @Override
+                    public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                        super.onDenied(context, deniedPermissions);
+                        Toast.makeText(DetailActivity.this, "Storage access is needed to save image", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
         });
@@ -144,6 +148,12 @@ public class DetailActivity extends AppCompatActivity{
                         startActivity(intent);
 
                         menuMultipleActions.collapse();
+                    }
+
+                    @Override
+                    public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                        super.onDenied(context, deniedPermissions);
+                        Toast.makeText(DetailActivity.this, "Storage access is needed to temporarily store the image so that it can be shared", Toast.LENGTH_SHORT).show();
                     }
                 });
 
