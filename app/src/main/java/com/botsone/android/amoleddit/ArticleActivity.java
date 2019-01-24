@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -40,7 +39,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,8 +100,6 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
 
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
                 //Uri articleUri = Uri.parse(currentArticle.getUrl());
-
-
 
                 String parsedUri = currentArticle.getImageUrl();
                 String title = currentArticle.getTitle();
