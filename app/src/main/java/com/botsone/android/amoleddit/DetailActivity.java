@@ -5,22 +5,18 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.WallpaperManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -28,19 +24,23 @@ import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.nabinbhandari.android.permissions.PermissionHandler;
+import com.nabinbhandari.android.permissions.Permissions;
 import com.yalantis.ucrop.UCrop;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class DetailActivity extends AppCompatActivity{
 
     private static final String TAG = DetailActivity.class.getName();
     private static final String SAMPLE_CROPPED_IMAGE_NAME = "tempImage";
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,6 @@ public class DetailActivity extends AppCompatActivity{
         actionA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 // Start the crop activity
                 UCrop.of(parsedUri, destinationUri)
                         .start(DetailActivity.this);
@@ -85,19 +84,21 @@ public class DetailActivity extends AppCompatActivity{
         actionB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    // Permission is not granted
-                    // Request for permission
-                    ActivityCompat.requestPermissions(DetailActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                final Context context = DetailActivity.this;
+                Permissions.check(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, "Storage access is needed to save image", new PermissionHandler() {
+                    @Override
+                    public void onGranted() {
+                        Bitmap bitmap = draweeView.getDrawingCache();
+                        saveImage(bitmap);
+                        menuMultipleActions.collapse();
+                    }
 
-                }else {
-                    Bitmap bitmap = draweeView.getDrawingCache();
-                    saveImage(bitmap);
-                    menuMultipleActions.collapse();
-                }
+                    @Override
+                    public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                        super.onDenied(context, deniedPermissions);
+                        Toast.makeText(DetailActivity.this, "Storage access is needed to save image", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
         });
@@ -105,31 +106,40 @@ public class DetailActivity extends AppCompatActivity{
         actionC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bitmap bitmap = Bitmap.createBitmap(draweeView.getDrawingCache());
+                final Context context = DetailActivity.this;
+                Permissions.check(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, "Storage access is needed to temporarily store the image so that it can be shared", new PermissionHandler() {
+                    @Override
+                    public void onGranted() {
+                        File cacheDir = getBaseContext().getCacheDir();
+                        File f = new File(cacheDir, "pic");
+                        FileInputStream fis = null;
+                        try {
+                            fis = new FileInputStream(f);
+                        } catch (FileNotFoundException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        Bitmap bitmap = BitmapFactory.decodeStream(fis);
+                        Uri uri = getImageUri(DetailActivity.this, bitmap);
 
-                File f = saveBitmapToFile(bitmap);
+                        // Share bitmap
+                        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_TEXT, "Sharing wallpaper from Amoleddit");
+                        intent.putExtra(Intent.EXTRA_STREAM, uri);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.setType("image/*");
 
-                try {
-                    final Uri newUri = convertFileToContentUri(DetailActivity.this, f);
-
-                    Intent intentShareFile = new Intent(Intent.ACTION_SEND);
-
-                    if (f.exists()) {
-                        intentShareFile.setType("image/*");
-                        intentShareFile.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        intentShareFile.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        intentShareFile.putExtra(Intent.EXTRA_STREAM, newUri);
-
-                        intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
-                                "Sharing File From Amoleddit...");
-                        intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File From Amoleddit...");
-
-                        startActivity(Intent.createChooser(intentShareFile, "Share File"));
+                        startActivity(intent);
+                        menuMultipleActions.collapse();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                menuMultipleActions.collapse();
+
+                    @Override
+                    public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                        super.onDenied(context, deniedPermissions);
+                        Toast.makeText(DetailActivity.this, "Storage access is needed to temporarily store the image so that it can be shared", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         });
 
@@ -146,40 +156,12 @@ public class DetailActivity extends AppCompatActivity{
     }
 
 
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
 
-    protected static Uri convertFileToContentUri(Context context, File file) throws Exception {
-
-        //Uri localImageUri = Uri.fromFile(localImageFile); // Not suitable as it's not a content Uri
-
-        ContentResolver cr = context.getContentResolver();
-        String imagePath = file.getAbsolutePath();
-        String imageName = null;
-        String imageDescription = null;
-        String uriString = MediaStore.Images.Media.insertImage(cr, imagePath, imageName, imageDescription);
-        return Uri.parse(uriString);
-    }
-
-    private File saveBitmapToFile(Bitmap bitmap1) {
-
-        //save bitmap to file f
-        File cacheDir = getBaseContext().getCacheDir();
-        final File f = new File(cacheDir, "pic.jpg");
-
-        try {
-            FileOutputStream out = new FileOutputStream(
-                    f);
-            bitmap1.compress(
-                    Bitmap.CompressFormat.JPEG,
-                    100, out);
-            out.flush();
-            out.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return f;
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     private void saveImage(Bitmap finalBitmap) {
@@ -187,11 +169,8 @@ public class DetailActivity extends AppCompatActivity{
         String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
         File myDir = new File(root);
         if (!myDir.exists()) {
-
             boolean result = myDir.mkdirs();
             Log.d("MyActivity", "mkdirs: " + result);
-
-
         }
         Random generator = new Random();
         int n = 10000;
@@ -240,13 +219,12 @@ public class DetailActivity extends AppCompatActivity{
 
     public class DialogActivity extends Dialog implements
             android.view.View.OnClickListener {
-
-        public Activity c;
+        private Activity c;
         private Uri resultUri;
         public Dialog d;
-        public Button regularWallpaper, lockscreenWallpaper, bothWallpapers;
+        private Button regularWallpaper, lockscreenWallpaper, bothWallpapers;
 
-        public DialogActivity(Activity a, Uri resultUri) {
+        private DialogActivity(Activity a, Uri resultUri) {
             super(a);
             // TODO Auto-generated constructor stub
             this.c = a;
@@ -318,5 +296,4 @@ public class DetailActivity extends AppCompatActivity{
             dismiss();
         }
     }
-
 }
