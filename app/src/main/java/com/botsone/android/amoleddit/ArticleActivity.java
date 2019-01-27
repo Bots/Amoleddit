@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -57,9 +58,12 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     private ArticleAdapter mAdapter;
     private SwipeRefreshLayout mySwipeRefreshLayout;
     private int check = 0;
-    private GridView articleListView;
-    private String donation1 = "one_dollar_donation";
+    GridView articleListView;
+    String donation1 = "one_dollar_donation";
     BillingProcessor bp;
+    String parsedUri;
+    String title;
+    String permalink;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,10 +80,10 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         toolbarSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
 
         // Find a reference to the {@link GridView} in the layout
-        articleListView = (GridView) findViewById(R.id.grid);
+        articleListView = findViewById(R.id.grid);
 
         // Define empty textview for when no data is returned
-        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        mEmptyStateTextView = findViewById(R.id.empty_view);
 
         articleListView.setEmptyView(mEmptyStateTextView);
 
@@ -101,15 +105,20 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
                 //Uri articleUri = Uri.parse(currentArticle.getUrl());
 
-                String parsedUri = currentArticle.getImageUrl();
-                String title = currentArticle.getTitle();
-                String permalink = currentArticle.getPermalink();
+                if (currentArticle != null) {
+                    parsedUri = currentArticle.getImageUrl();
+                    title = currentArticle.getTitle();
+                    permalink = currentArticle.getPermalink();
+                }
 
                 // Create a new intent to send user to detail activity
                 final Intent detailIntent = new Intent(ArticleActivity.this, DetailActivity.class);
 
                 ImagePipeline imagePipeline = Fresco.getImagePipeline();
-                Uri uri = Uri.parse(currentArticle.getImageUrl());
+                Uri uri = null;
+                if (currentArticle != null) {
+                    uri = Uri.parse(currentArticle.getImageUrl());
+                }
 
                 ImageRequest request = ImageRequestBuilder
                         .newBuilderWithSource(uri).build();
@@ -130,9 +139,11 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
                                 try {
                                     FileOutputStream out = new FileOutputStream(
                                             f);
-                                    bitmap.compress(
-                                            Bitmap.CompressFormat.JPEG,
-                                            100, out);
+                                    if (bitmap != null) {
+                                        bitmap.compress(
+                                                Bitmap.CompressFormat.JPEG,
+                                                100, out);
+                                    }
                                     out.flush();
                                     out.close();
 
@@ -244,7 +255,7 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
         // Hide loading indicator because the data has been loaded
-        View loadingIndicator = (View) findViewById(R.id.loading_indicator);
+        View loadingIndicator = findViewById(R.id.loading_indicator);
         loadingIndicator.setVisibility(View.GONE);
 
         // Set empty state text to display "No articles found."
@@ -335,7 +346,7 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
         } else {
             // Otherwise show error
             // First hide the loading indicator so that the error message will be visible
-            View loadingIndicator = (View) findViewById(R.id.loading_indicator);
+            View loadingIndicator = findViewById(R.id.loading_indicator);
 
             loadingIndicator.setVisibility(View.GONE);
 
@@ -354,7 +365,7 @@ public class ArticleActivity extends AppCompatActivity implements LoaderManager.
     }
 
     @Override
-    public void onProductPurchased(String productId, TransactionDetails details) {
+    public void onProductPurchased(@NonNull String productId, TransactionDetails details) {
         /*
          * Called when requested PRODUCT ID was successfully purchased
          */

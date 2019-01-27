@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class DetailActivity extends AppCompatActivity{
+public class DetailActivity extends AppCompatActivity {
 
     private static final String TAG = DetailActivity.class.getName();
     private static final String SAMPLE_CROPPED_IMAGE_NAME = "tempImage";
@@ -53,20 +53,20 @@ public class DetailActivity extends AppCompatActivity{
         final String commentsUri = "https://www.reddit.com" + gotIntent.getStringExtra("permalink");
         final Uri parsedUri = Uri.parse(value);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(title);
         setSupportActionBar(toolbar);
 
         final String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME + ".png";
         final Uri destinationUri = Uri.fromFile(new File(getCacheDir(), destinationFileName));
 
-        final FloatingActionsMenu menuMultipleActions = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
-        final com.getbase.floatingactionbutton.FloatingActionButton actionA = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
-        final com.getbase.floatingactionbutton.FloatingActionButton actionB = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_b);
-        final com.getbase.floatingactionbutton.FloatingActionButton actionC = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_c);
-        final com.getbase.floatingactionbutton.FloatingActionButton actionD = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_d);
+        final FloatingActionsMenu menuMultipleActions = findViewById(R.id.multiple_actions);
+        final com.getbase.floatingactionbutton.FloatingActionButton actionA = findViewById(R.id.action_a);
+        final com.getbase.floatingactionbutton.FloatingActionButton actionB = findViewById(R.id.action_b);
+        final com.getbase.floatingactionbutton.FloatingActionButton actionC = findViewById(R.id.action_c);
+        final com.getbase.floatingactionbutton.FloatingActionButton actionD = findViewById(R.id.action_d);
 
-        final SimpleDraweeView draweeView = (SimpleDraweeView) findViewById(R.id.detail_view);
+        final SimpleDraweeView draweeView = findViewById(R.id.detail_view);
         draweeView.setDrawingCacheEnabled(true);
         draweeView.buildDrawingCache();
         draweeView.setImageURI(value);
@@ -152,7 +152,9 @@ public class DetailActivity extends AppCompatActivity{
             }
         });
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
 
@@ -175,18 +177,19 @@ public class DetailActivity extends AppCompatActivity{
         Random generator = new Random();
         int n = 10000;
         n = generator.nextInt(n);
-        String fname = "Image-"+ n +".jpg";
-        File file = new File (myDir, fname);
-        if (file.exists ())
-            file.delete ();
+        String fname = "Image-" + n + ".jpg";
+        File file = new File(myDir, fname);
+        if (file.exists()) {
+            file.delete();
+        }
         try {
             FileOutputStream out = new FileOutputStream(file);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
             Toast.makeText(this, "File saved to /sdcard/Downloads", Toast.LENGTH_SHORT).show();
-            DownloadManager downloadManager = (DownloadManager)this.getSystemService(this.DOWNLOAD_SERVICE);
-            downloadManager.addCompletedDownload(file.getName(), file.getName(), true, "image/*", file.getAbsolutePath(),file.length(),true);
+            DownloadManager downloadManager = (DownloadManager) this.getSystemService(DOWNLOAD_SERVICE);
+            downloadManager.addCompletedDownload(file.getName(), file.getName(), true, "image/*", file.getAbsolutePath(), file.length(), true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 Intent mediaScanIntent = new Intent(
                         Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -209,6 +212,9 @@ public class DetailActivity extends AppCompatActivity{
             showDialog(resultUri);
         } else if (resultCode == UCrop.RESULT_ERROR) {
             final Throwable cropError = UCrop.getError(data);
+            if (cropError != null) {
+                cropError.printStackTrace();
+            }
         }
     }
 
@@ -221,7 +227,6 @@ public class DetailActivity extends AppCompatActivity{
             android.view.View.OnClickListener {
         private Activity c;
         private Uri resultUri;
-        public Dialog d;
         private Button regularWallpaper, lockscreenWallpaper, bothWallpapers;
 
         private DialogActivity(Activity a, Uri resultUri) {
@@ -236,9 +241,9 @@ public class DetailActivity extends AppCompatActivity{
             super.onCreate(savedInstanceState);
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setContentView(R.layout.dialog);
-            regularWallpaper = (Button) findViewById(R.id.btn_wallpaper);
-            lockscreenWallpaper = (Button) findViewById(R.id.btn_lockscreen_wallpaper);
-            bothWallpapers = (Button) findViewById(R.id.btn_both_wallpapers);
+            regularWallpaper = findViewById(R.id.btn_wallpaper);
+            lockscreenWallpaper = findViewById(R.id.btn_lockscreen_wallpaper);
+            bothWallpapers = findViewById(R.id.btn_both_wallpapers);
             regularWallpaper.setOnClickListener(this);
             lockscreenWallpaper.setOnClickListener(this);
             bothWallpapers.setOnClickListener(this);
