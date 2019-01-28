@@ -16,6 +16,8 @@
     <string name="wallpaperSet">Wallpaper has been set.</string>
     <string name="toolbar_spinner_prompt">Sort by:</string>
     <string name="menu_refresh">Refresh</string>
+    <string name="storage_error">Storage access is needed to temporarily store the image so that it can be shared</string>
+    <string name="could_not_complete_action">Couldn\'t complete action</string>
     <string-array name="toolbar_spinner_array">
         <item>Hot</item>
         <item>New</item>

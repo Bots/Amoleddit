@@ -14,8 +14,8 @@ android {
         applicationId "com.botsone.android.amoleddit"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 18
-        versionName "1.97"
+        versionCode 20
+        versionName "1.981"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

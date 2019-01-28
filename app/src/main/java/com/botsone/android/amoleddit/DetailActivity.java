@@ -123,20 +123,25 @@ public class DetailActivity extends AppCompatActivity {
                         Uri uri = getImageUri(DetailActivity.this, bitmap);
 
                         // Share bitmap
-                        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_TEXT, "Sharing wallpaper from Amoleddit");
-                        intent.putExtra(Intent.EXTRA_STREAM, uri);
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        intent.setType("image/*");
+                        if (uri != null) {
+                            Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                            intent.putExtra(Intent.EXTRA_TEXT, "Sharing wallpaper from Amoleddit");
+                            intent.putExtra(Intent.EXTRA_STREAM, uri);
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            intent.setType("image/*");
 
-                        startActivity(intent);
-                        menuMultipleActions.collapse();
+                            startActivity(intent);
+                            menuMultipleActions.collapse();
+                        } else {
+                            Toast.makeText(DetailActivity.this, getString(R.string.could_not_complete_action), Toast.LENGTH_SHORT).show();
+                            menuMultipleActions.collapse();
+                        }
                     }
 
                     @Override
                     public void onDenied(Context context, ArrayList<String> deniedPermissions) {
                         super.onDenied(context, deniedPermissions);
-                        Toast.makeText(DetailActivity.this, "Storage access is needed to temporarily store the image so that it can be shared", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailActivity.this, getString(R.string.storage_error), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -159,10 +164,19 @@ public class DetailActivity extends AppCompatActivity {
 
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
+        Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+        //Boolean isSDSupportedDevice = Environment.isExternalStorageRemovable();
+        String path = null;
 
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        if (isSDPresent) {
+            // yes SD-card is present
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+
+        } else {
+            Toast.makeText(this, "Sorry external storage is needed to complete this action", Toast.LENGTH_SHORT).show();
+        }
         return Uri.parse(path);
     }
 
