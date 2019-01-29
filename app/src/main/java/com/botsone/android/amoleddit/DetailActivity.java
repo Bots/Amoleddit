@@ -113,6 +113,7 @@ public class DetailActivity extends AppCompatActivity {
                         File cacheDir = getBaseContext().getCacheDir();
                         File f = new File(cacheDir, "pic");
                         FileInputStream fis = null;
+                        Uri uri = null;
                         try {
                             fis = new FileInputStream(f);
                         } catch (FileNotFoundException e) {
@@ -120,8 +121,12 @@ public class DetailActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         Bitmap bitmap = BitmapFactory.decodeStream(fis);
-                        Uri uri = getImageUri(DetailActivity.this, bitmap);
-
+                        if (bitmap != null) {
+                            uri = getImageUri(DetailActivity.this, bitmap);
+                        } else {
+                            Toast.makeText(DetailActivity.this, getString(R.string.could_not_complete_action), Toast.LENGTH_SHORT).show();
+                            menuMultipleActions.collapse();
+                        }
                         // Share bitmap
                         if (uri != null) {
                             Intent intent = new Intent(android.content.Intent.ACTION_SEND);
@@ -164,7 +169,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
-        Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+        boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
         //Boolean isSDSupportedDevice = Environment.isExternalStorageRemovable();
         String path = null;
 
@@ -174,10 +179,14 @@ public class DetailActivity extends AppCompatActivity {
             inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
             path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
 
+
+        }
+        if (path != null) {
+            return Uri.parse(path);
         } else {
             Toast.makeText(this, "Sorry external storage is needed to complete this action", Toast.LENGTH_SHORT).show();
         }
-        return Uri.parse(path);
+        return null;
     }
 
     private void saveImage(Bitmap finalBitmap) {
